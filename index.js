@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require("body-parser");
 
 const User = require("./model/userDetails.js");
 const Stat = require("./model/statDetails.js");
@@ -15,6 +16,9 @@ const connectionString = "mongodb+srv://amalsn:amal123@ffsd42.qhbl5.mongodb.net/
 mongoose.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true}).catch(
     error => console.log(error)
 );
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 app.get("/tic-tac-toe",async (req, res) => {
     console.log(mongoose.connection.readyState)
@@ -32,6 +36,7 @@ app.get("/tic-tac-toe",async (req, res) => {
         return 0;
     })
     console.log(x)
+    // res.header({"Allow-Control-Allow-Origin":"*","Content-Type":"application/json"})
     res.json(x)
 })
 
@@ -71,6 +76,19 @@ app.get("/ludo",async (req, res) => {
     })
     console.log(x)
     res.json(x)
+})
+
+app.get("/users",async (req, res) => {
+    console.log(mongoose.connection.readyState)
+    let x = await Stat.find({});
+    res.json(x)
+})
+
+app.post("/delete-user",async(req, res) => {
+    await User.deleteOne({uName: req.body.uName})
+    await Stat.deleteOne({uName: req.body.uName})
+    console.log(req.body.uName)
+    res.sendStatus(200)
 })
 
 server.listen(5000, () => {
