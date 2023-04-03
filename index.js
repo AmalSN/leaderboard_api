@@ -84,7 +84,31 @@ app.get("/users",async (req, res) => {
     res.json(x)
 })
 
-app.post("/delete-user",async(req, res) => {
+app.post("/create-user",async(req, res) => {
+    await User.collection.insertOne({
+        uName: req.body.uName,
+        password: req.body.password,
+        email: req.body.email,
+        fName: req.body.fName,
+        lName: req.body.lName,
+        age: req.body.age,
+        gender: req.body.gender
+        })
+    await Stat.collection.insertOne({
+        uName: req.body.uName,
+        played: [0,0,0],
+        wins: [0,0,0],
+        losses: [0,0,0]
+    })
+    res.sendStatus(200)
+})
+
+app.put("/update-user",async(req, res) => {
+    await User.updateOne({uName: req.body.uName},{fName: req.body.fName, lName: req.body.lName})
+    res.sendStatus(200)
+})
+
+app.delete("/delete-user",async(req, res) => {
     await User.deleteOne({uName: req.body.uName})
     await Stat.deleteOne({uName: req.body.uName})
     console.log(req.body.uName)
