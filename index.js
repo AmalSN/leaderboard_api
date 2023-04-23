@@ -8,6 +8,9 @@ const bodyParser = require("body-parser");
 const User = require("./model/userDetails.js");
 const Stat = require("./model/statDetails.js");
 
+const gameController = require("./controller/gameController.js")
+const userController = require("./controller/userController.js")
+
 const app = express();
 const server = require("http").createServer(app);
 
@@ -20,101 +23,22 @@ mongoose.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: t
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 
-app.get("/tic-tac-toe",async (req, res) => {
-    console.log(mongoose.connection.readyState)
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[0], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
-        }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
-    })
-    console.log(x)
-    // res.header({"Allow-Control-Allow-Origin":"*","Content-Type":"application/json"})
-    res.json(x)
-})
+app.get("/tic-tac-toe",gameController.ticFunc)
 
-app.get("/snake-ladder",async (req, res) => {
-    console.log(mongoose.connection.readyState)
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[1], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
-        }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
-    })
-    console.log(x)
-    res.json(x)
-})
+app.get("/snake-ladder",gameController.snakeFunc)
 
-app.get("/ludo",async (req, res) => {
-    console.log(mongoose.connection.readyState)
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[2], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
-        }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
-    })
-    console.log(x)
-    res.json(x)
-})
+app.get("/ludo",gameController.ludoFunc)
 
-app.get("/users",async (req, res) => {
-    console.log(mongoose.connection.readyState)
-    let x = await Stat.find({});
-    res.json(x)
-})
+app.get("/users",userController.getUser)
 
-app.post("/create-user",async(req, res) => {
-    await User.collection.insertOne({
-        uName: req.body.uName,
-        password: req.body.password,
-        email: req.body.email,
-        fName: req.body.fName,
-        lName: req.body.lName,
-        age: req.body.age,
-        gender: req.body.gender
-        })
-    await Stat.collection.insertOne({
-        uName: req.body.uName,
-        played: [0,0,0],
-        wins: [0,0,0],
-        losses: [0,0,0]
-    })
-    res.sendStatus(200)
-})
+app.post("/create-user",userController.createUser)
 
-app.put("/update-user",async(req, res) => {
-    await User.updateOne({uName: req.body.uName},{fName: req.body.fName, lName: req.body.lName})
-    res.sendStatus(200)
-})
+app.put("/update-user",userController.updateUser)
 
-app.delete("/delete-user",async(req, res) => {
-    await User.deleteOne({uName: req.body.uName})
-    await Stat.deleteOne({uName: req.body.uName})
-    console.log(req.body.uName)
-    res.sendStatus(200)
-})
+app.delete("/delete-user",userController.deleteUser)
 
 server.listen(5000, () => {
     console.log("API running....")
 })
+
+module.exports = server
