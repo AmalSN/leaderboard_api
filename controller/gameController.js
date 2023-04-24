@@ -4,63 +4,98 @@ const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser");
+const redis = require("redis");
 
 const User = require("./../model/userDetails.js");
 const Stat = require("./../model/statDetails.js");
 
+const redisClient = redis.createClient("redis://red-ch3egirh4hsum435no8g:6379")
+
 let ticFunc = async (req, res) => {
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[0], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
+    redisClient.get("lst", async(error,lst) => {
+        let x;
+        if(error) console.log(error)
+        if(lst != null){
+            console.log("Cache hit")
+            x = JSON.parse(lst)
+        }else{
+            console.log("Cache miss")
+            x = await Stat.find({},"uName wins").limit(6);
+            redisClient.setex("lst", 10, JSON.stringify(x))
         }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
+        x = x.map(l => {
+            return {_id: l._id, uName: l.uName, wins: l.wins[0], pic: `/profilePic/${l.uName}.png`}
+        })
+        x.sort(function(a,b){
+            if (a.wins > b.wins) {
+                return -1;
+            }
+            if (a.wins < b.wins) {
+                return 1;
+            }
+            return 0;
+        })
+        res.status(200)
+        res.json(x)
     })
-    // res.header({"Allow-Control-Allow-Origin":"*","Content-Type":"application/json"})
-    res.status(200)
-    res.json(x)
 }
 
 let snakeFunc = async (req, res) => {
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[1], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
+    redisClient.get("lst", async(error,lst) => {
+        let x;
+        if(error) console.log(error)
+        if(lst != null){
+            console.log("Cache hit")
+            x = JSON.parse(lst)
+        }else{
+            console.log("Cache miss")
+            x = await Stat.find({},"uName wins").limit(6);
+            redisClient.setex("lst", 10, JSON.stringify(x))
         }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
+        x = x.map(l => {
+            return {_id: l._id, uName: l.uName, wins: l.wins[1], pic: `/profilePic/${l.uName}.png`}
+        })
+        x.sort(function(a,b){
+            if (a.wins > b.wins) {
+                return -1;
+            }
+            if (a.wins < b.wins) {
+                return 1;
+            }
+            return 0;
+        })
+        res.status(200)
+        res.json(x)
     })
-    res.status(200)
-    res.json(x)
 }
 
 let ludoFunc = async (req, res) => {
-    let x = await Stat.find({},"uName wins").limit(6);
-    x = x.map(l => {
-        return {_id: l._id, uName: l.uName, wins: l.wins[2], pic: `/profilePic/${l.uName}.png`}
-    })
-    x.sort(function(a,b){
-        if (a.wins > b.wins) {
-            return -1;
+    redisClient.get("lst", async(error,lst) => {
+        let x;
+        if(error) console.log(error)
+        if(lst != null){
+            console.log("Cache hit")
+            x = JSON.parse(lst)
+        }else{
+            console.log("Cache miss")
+            x = await Stat.find({},"uName wins").limit(6);
+            redisClient.setex("lst", 10, JSON.stringify(x))
         }
-        if (a.wins < b.wins) {
-            return 1;
-        }
-        return 0;
+        x = x.map(l => {
+            return {_id: l._id, uName: l.uName, wins: l.wins[2], pic: `/profilePic/${l.uName}.png`}
+        })
+        x.sort(function(a,b){
+            if (a.wins > b.wins) {
+                return -1;
+            }
+            if (a.wins < b.wins) {
+                return 1;
+            }
+            return 0;
+        })
+        res.status(200)
+        res.json(x)
     })
-    res.status(200)
-    res.json(x)
 }
 
 module.exports = {
