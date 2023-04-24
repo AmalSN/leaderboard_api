@@ -4,14 +4,27 @@ const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser");
+const redis = require("redis");
 
 const User = require("./../model/userDetails.js");
 const Stat = require("./../model/statDetails.js");
 
+const redisClient = redis.createClient("redis://red-ch3egirh4hsum435no8g:6379")
+
 let getUser = async (req, res) => {
-    console.log(mongoose.connection.readyState)
-    let x = await Stat.find({});
-    res.json(x)
+    redisClient.get("lst", async(error,lst) => {
+        let x;
+        if(error) console.log(error)
+        if(lst != null){
+            console.log("Cache hit")
+            return res.json(JSON.parse(lst))
+        }else{
+            console.log("Cache miss")
+            x = await Stat.find({});
+            redisClient.setex("lst", 10, JSON.stringify(x))
+        }
+        res.json(x)
+    })
 }
 
 let createUser = async(req, res) => {
