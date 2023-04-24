@@ -12,7 +12,7 @@ const Stat = require("./../model/statDetails.js");
 const redisClient = redis.createClient("redis://red-ch3egirh4hsum435no8g:6379")
 
 let ticFunc = async (req, res) => {
-    redisClient.get("lst", async(error,lst) => {
+    redisClient.get("tic", async(error,lst) => {
         let x;
         if(error) console.log(error)
         if(lst != null){
@@ -21,7 +21,7 @@ let ticFunc = async (req, res) => {
         }else{
             console.log("Cache miss")
             x = await Stat.find({},"uName wins").limit(6);
-            redisClient.setex("lst", 10, JSON.stringify(x))
+            redisClient.setex("tic", 10, JSON.stringify(x))
         }
         x = x.map(l => {
             return {_id: l._id, uName: l.uName, wins: l.wins[0], pic: `/profilePic/${l.uName}.png`}
@@ -41,7 +41,7 @@ let ticFunc = async (req, res) => {
 }
 
 let snakeFunc = async (req, res) => {
-    redisClient.get("lst", async(error,lst) => {
+    redisClient.get("snk", async(error,lst) => {
         let x;
         if(error) console.log(error)
         if(lst != null){
@@ -50,7 +50,7 @@ let snakeFunc = async (req, res) => {
         }else{
             console.log("Cache miss")
             x = await Stat.find({},"uName wins").limit(6);
-            redisClient.setex("lst", 10, JSON.stringify(x))
+            redisClient.setex("snk", 10, JSON.stringify(x))
         }
         x = x.map(l => {
             return {_id: l._id, uName: l.uName, wins: l.wins[1], pic: `/profilePic/${l.uName}.png`}
@@ -70,7 +70,7 @@ let snakeFunc = async (req, res) => {
 }
 
 let ludoFunc = async (req, res) => {
-    redisClient.get("lst", async(error,lst) => {
+    redisClient.get("ludo", async(error,lst) => {
         let x;
         if(error) console.log(error)
         if(lst != null){
@@ -79,7 +79,7 @@ let ludoFunc = async (req, res) => {
         }else{
             console.log("Cache miss")
             x = await Stat.find({},"uName wins").limit(6);
-            redisClient.setex("lst", 10, JSON.stringify(x))
+            redisClient.setex("ludo", 10, JSON.stringify(x))
         }
         x = x.map(l => {
             return {_id: l._id, uName: l.uName, wins: l.wins[2], pic: `/profilePic/${l.uName}.png`}
