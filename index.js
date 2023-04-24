@@ -38,7 +38,7 @@ app.put("/update-user",userController.updateUser)
 app.delete("/delete-user",userController.deleteUser)
 
 server.listen(5000, () => {
-    console.log("API running....")
+    console.log("Running....")
 })
 
 module.exports = server
